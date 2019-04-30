@@ -25,9 +25,18 @@ describe Y2Network::ConfigReader::Sysconfig do
   let(:network_interfaces) do
     instance_double(
       Yast::NetworkInterfacesClass,
-      Read: nil,
-      List: ["lo", "eth0", "wlan0"],
       devmap: {}
+    )
+  end
+
+  let(:lan_items) do
+    instance_double(
+      Yast::LanItemsClass,
+      Items: {
+        0 => { "ifcfg" => "lo" },
+        1 => { "ifcfg" => "eth0" },
+        2 => { "ifcfg" => "wlan0" }
+      }
     )
   end
 
@@ -38,6 +47,7 @@ describe Y2Network::ConfigReader::Sysconfig do
   describe "#config" do
     before do
       stub_const("Yast::NetworkInterfaces", network_interfaces)
+      stub_const("Yast::LanItems", lan_items)
     end
 
     it "returns a configuration including network devices" do
@@ -49,7 +59,7 @@ describe Y2Network::ConfigReader::Sysconfig do
       config = reader.config
       route = config.routing.routes.find { |r| !!r.interface }
 
-      iface = config.interfaces.find { |i| i.name == route.interface.name }
+      iface = config.interfaces.find(route.interface.name)
       expect(route.interface).to be(iface)
     end
 
@@ -66,6 +76,7 @@ describe Y2Network::ConfigReader::Sysconfig do
 
   describe "#forward_ipv4?" do
     before do
+      allow(Yast::LanItems).to receive(:Items).and_return({})
       allow(Y2Network::SysconfigRoutesFile).to receive(:new).and_return(routes_file)
     end
 
@@ -82,6 +93,7 @@ describe Y2Network::ConfigReader::Sysconfig do
 
   describe "#forward_ipv6?" do
     before do
+      allow(Yast::LanItems).to receive(:Items).and_return({})
       allow(Y2Network::SysconfigRoutesFile).to receive(:new).and_return(routes_file)
     end
 
