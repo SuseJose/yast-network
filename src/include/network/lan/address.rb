@@ -1207,7 +1207,7 @@ module Yast
 
     # Dialog for setting up IP address
     # @return dialog result
-    def AddressDialog(builder: builder)
+    def AddressDialog(builder: nil)
       initialize_address_settings(builder)
 
       wd = Convert.convert(
@@ -1376,23 +1376,23 @@ module Yast
         # to be updated to offer them
         # FIXME: not working in network-ng - but should not be needed at all
         # it updates list of available interfaces which is done elsewhere already
-        #LanItems.add_current_device_to_routing if LanItems.update_routing_devices?
+        # LanItems.add_current_device_to_routing if LanItems.update_routing_devices?
       end
 
       if builder.type == "vlan"
         builder.set(option: "ETHERDEVICE", value: Ops.get_string(@settings, "ETHERDEVICE", ""))
         builder.set(
           options: "VLANID",
-          value: Builtins.tostring(Ops.get_integer(@settings, "VLAN_ID", 0))
+          value:   Builtins.tostring(Ops.get_integer(@settings, "VLAN_ID", 0))
         )
       elsif Builtins.contains(["tun", "tap"], builder.type)
         builder.set(
           option: "TUNNEL_SET_OWNER",
-          value: Ops.get_string(@settings, "TUNNEL_SET_OWNER", "")
+          value:  Ops.get_string(@settings, "TUNNEL_SET_OWNER", "")
         )
         builder.set(
           option: "TUNNEL_SET_GROUP",
-          value: Ops.get_string(@settings, "TUNNEL_SET_GROUP", "")
+          value:  Ops.get_string(@settings, "TUNNEL_SET_GROUP", "")
         )
       end
 
@@ -1423,7 +1423,7 @@ module Yast
         "REMOTEIP"         => builder.option("REMOTEIP"),
         "HOSTNAME"         => initial_hostname(builder.option("IPADDR")),
         "IFCFGTYPE"        => builder.type,
-        "IFCFGID"          => builder.name,
+        "IFCFGID"          => builder.name
       }
 
       if LanItems.type == "vlan"
