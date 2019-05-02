@@ -743,7 +743,7 @@ module Yast
     # Group called FOO has buttons FOO_bar FOO_qux and values bar qux
     # @param _key [String] id of the widget
     def initBootProto(_key)
-      if LanItems.type != "eth"
+      if @builder.type != "eth"
         UI.ReplaceWidget(
           :rp,
           Left(
@@ -1109,7 +1109,7 @@ module Yast
       # any device info (especially for virtual devices like vlan)
       # @type variable is already initialized by @see HardwareDialog
       # resp its storage handler @see storeHW
-      type = LanItems.type
+      type = @builder.type
 
       drvtype = DriverType(type)
       is_ptp = drvtype == "ctc" || drvtype == "iucv"
@@ -1208,6 +1208,7 @@ module Yast
     # Dialog for setting up IP address
     # @return dialog result
     def AddressDialog(builder: nil)
+      @builder = builder
       initialize_address_settings(builder)
 
       wd = Convert.convert(
@@ -1266,7 +1267,7 @@ module Yast
       @settings["IFCFG"] = builder.name if LanItems.operation != :add
 
       # Firewall config
-      firewall_zone = Y2Network::Widgets::FirewallZone.new(LanItems.device)
+      firewall_zone = Y2Network::Widgets::FirewallZone.new(builder.name)
       wd["FWZONE"] = firewall_zone.cwm_definition
       firewall_zone.value = @settings["FWZONE"] if firewalld.installed?
 
@@ -1398,8 +1399,6 @@ module Yast
 
       # proceed with WLAN settings if appropriate, #42420
       ret = :wire if ret == :next && LanItems.type == "wlan"
-
-      @builder = nil
 
       ret
     end
