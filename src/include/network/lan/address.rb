@@ -1110,7 +1110,7 @@ module Yast
         type == "vlan" ? VBox("ETHERDEVICE") : Empty()
       )
 
-      address_contents = if ["tun", "tap"].include?(LanItems.type)
+      address_contents = if ["tun", "tap"].include?(type)
         VBox(Left(label), "TUNNEL")
       else
         VBox(
@@ -1352,7 +1352,7 @@ module Yast
       end
 
       # proceed with WLAN settings if appropriate, #42420
-      ret = :wire if ret == :next && LanItems.type == "wlan"
+      ret = :wire if ret == :next && builder.type == "wlan"
 
       ret
     end
@@ -1379,7 +1379,7 @@ module Yast
         "IFCFGID"          => builder.name
       }
 
-      if LanItems.type == "vlan"
+      if builder.type == "vlan"
         @settings["ETHERDEVICE"] = builder.option("ETHERDEVICE")
         @settings["VLAN_ID"]     = builder.option("VLAN_ID")
       end
