@@ -900,7 +900,7 @@ module Yast
     end
 
     def initIfcfg(key)
-      UI.ChangeWidget(Id(key), :Value, LanItems.type)
+      UI.ChangeWidget(Id(key), :Value, @settings["IFCFGTYPE"])
       UI.ChangeWidget(Id(key), :Enabled, false)
 
       nil
@@ -911,7 +911,7 @@ module Yast
       UI.ChangeWidget(
         Id(key),
         :Value,
-        Ops.get_string(LanItems.Items, [LanItems.current, "ifcfg"], "")
+        @settings["IFCFGID"]
       )
 
       nil
