@@ -148,6 +148,7 @@ module Yast
     #
     # @param [String] netmask or /<prefix length>
     def valid_netmask?(netmask)
+      return true if netmask == "0.0.0.0"
       return false if netmask.nil? || netmask.empty?
       return true if Netmask.Check4(netmask)
 
@@ -457,12 +458,12 @@ module Yast
     # @return [Hash] where netmask is "-" (CIDR flavor)
     def convert_route_conf(route)
       return route if route["netmask"] == "-"
-
       dest = route["destination"]
       netmask = route["netmask"]
 
-      if Netmask.Check4(netmask)
+      if Netmask.Check4(netmask) 
         cidr = Netmask.ToBits(netmask)
+      elsif netmask == "0.0.0.0"
       elsif netmask.start_with?("/")
         cidr = netmask[1..-1]
       else
@@ -471,9 +472,14 @@ module Yast
         raise ArgumentError, "Invalid netmask or prefix length: #{netmask}"
       end
 
-      route["destination"] = "#{dest}/#{cidr}"
-      route["netmask"] = "-"
-
+	#if netmask is 0.0.0.0 we swtting it like a default route to fix this bug 1100432 
+     if netmask == "0.0.0.0" && dest == "0.0.0.0"
+        route["destination"] = "default"
+        route["netmask"] = "-"
+     else
+        route["destination"] = "#{dest}/#{cidr}"
+        route["netmask"] = "-"
+     end 
       route
     end
 
